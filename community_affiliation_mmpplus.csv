@@ -1,0 +1,380 @@
+﻿MMP_Index,MMP_Label,Community_Vector,Community_Label
+1,R_V1,1,Visual
+2,R_MST,1,Visual
+3,R_V6,1,Visual
+4,R_V2,1,Visual
+5,R_V3,1,Visual
+6,R_V4,1,Visual
+7,R_V8,1,Visual
+8,R_4,2,Somatomotor
+9,R_3b,2,Somatomotor
+10,R_FEF,4,Ventral Salience
+11,R_PEF,3,Dorsal Salience
+12,R_55b,4,Ventral Salience
+13,R_V3A,1,Visual
+14,R_RSC,6,Central Executive
+15,R_POS2,6,Central Executive
+16,R_V7,1,Visual
+17,R_IPS1,1,Visual
+18,R_FFC,1,Visual
+19,R_V3B,1,Visual
+20,R_LO1,1,Visual
+21,R_LO2,1,Visual
+22,R_PIT,1,Visual
+23,R_MT,1,Visual
+24,R_A1,2,Somatomotor
+25,R_PSL,4,Ventral Salience
+26,R_SFL,5,Default Mode
+27,R_PCV,5,Default Mode
+28,R_STV,5,Default Mode
+29,R_7Pm,6,Central Executive
+30,R_7m,5,Default Mode
+31,R_POS1,5,Default Mode
+32,R_23d,6,Central Executive
+33,R_v23ab,5,Default Mode
+34,R_d23ab,5,Default Mode
+35,R_31pv,5,Default Mode
+36,R_5m,2,Somatomotor
+37,R_5mv,4,Ventral Salience
+38,R_23c,4,Ventral Salience
+39,R_5L,2,Somatomotor
+40,R_24dd,2,Somatomotor
+41,R_24dv,2,Somatomotor
+42,R_7AL,4,Ventral Salience
+43,R_SCEF,4,Ventral Salience
+44,R_6ma,4,Ventral Salience
+45,R_7Am,3,Dorsal Salience
+46,R_7PL,3,Dorsal Salience
+47,R_7PC,2,Somatomotor
+48,R_LIPv,1,Visual
+49,R_VIP,1,Visual
+50,R_MIP,1,Visual
+51,R_1,2,Somatomotor
+52,R_2,2,Somatomotor
+53,R_3a,2,Somatomotor
+54,R_6d,2,Somatomotor
+55,R_6mp,2,Somatomotor
+56,R_6v,2,Somatomotor
+57,R_p24pr,4,Ventral Salience
+58,R_33pr,6,Central Executive
+59,R_a24pr,4,Ventral Salience
+60,R_p32pr,4,Ventral Salience
+61,R_a24,5,Default Mode
+62,R_d32,6,Central Executive
+63,R_8BM,6,Central Executive
+64,R_p32,6,Central Executive
+65,R_10r,5,Default Mode
+66,R_47m,5,Default Mode
+67,R_8Av,6,Central Executive
+68,R_8Ad,5,Default Mode
+69,R_9m,5,Default Mode
+70,R_8BL,5,Default Mode
+71,R_9p,5,Default Mode
+72,R_10d,5,Default Mode
+73,R_8C,6,Central Executive
+74,R_44,6,Central Executive
+75,R_45,5,Default Mode
+76,R_47l,5,Default Mode
+77,R_a47r,6,Central Executive
+78,R_6r,3,Dorsal Salience
+79,R_IFJa,6,Central Executive
+80,R_IFJp,6,Central Executive
+81,R_IFSp,6,Central Executive
+82,R_IFSa,3,Dorsal Salience
+83,R_p9-46v,6,Central Executive
+84,R_46,4,Ventral Salience
+85,R_a9-46v,6,Central Executive
+86,R_9-46d,4,Ventral Salience
+87,R_9a,5,Default Mode
+88,R_10v,5,Default Mode
+89,R_a10p,6,Central Executive
+90,R_10pp,5,Default Mode
+91,R_11l,6,Central Executive
+92,R_13l,3,Dorsal Salience
+93,R_OFC,6,Central Executive
+94,R_47s,5,Default Mode
+95,R_LIPd,1,Visual
+96,R_6a,3,Dorsal Salience
+97,R_i6-8,6,Central Executive
+98,R_s6-8,6,Central Executive
+99,R_43,4,Ventral Salience
+100,R_OP4,2,Somatomotor
+101,R_OP1,2,Somatomotor
+102,R_OP2-3,2,Somatomotor
+103,R_52,2,Somatomotor
+104,R_RI,2,Somatomotor
+105,R_PFcm,4,Ventral Salience
+106,R_PoI2,4,Ventral Salience
+107,R_TA2,2,Somatomotor
+108,R_FOP4,4,Ventral Salience
+109,R_MI,4,Ventral Salience
+110,R_Pir,2,Somatomotor
+111,R_AVI,6,Central Executive
+112,R_AAIC,6,Central Executive
+113,R_FOP1,4,Ventral Salience
+114,R_FOP3,4,Ventral Salience
+115,R_FOP2,2,Somatomotor
+116,R_PFt,3,Dorsal Salience
+117,R_AIP,3,Dorsal Salience
+118,R_EC,5,Default Mode
+119,R_PreS,5,Default Mode
+120,R_H,5,Default Mode
+121,R_ProS,1,Visual
+122,R_PeEc,5,Default Mode
+123,R_STGa,5,Default Mode
+124,R_PBelt,2,Somatomotor
+125,R_A5,5,Default Mode
+126,R_PHA1,5,Default Mode
+127,R_PHA3,1,Visual
+128,R_STSda,5,Default Mode
+129,R_STSdp,5,Default Mode
+130,R_STSvp,5,Default Mode
+131,R_TGd,5,Default Mode
+132,R_TE1a,5,Default Mode
+133,R_TE1p,6,Central Executive
+134,R_TE2a,6,Central Executive
+135,R_TF,5,Default Mode
+136,R_TE2p,1,Visual
+137,R_PHT,3,Dorsal Salience
+138,R_PH,1,Visual
+139,R_TPOJ1,5,Default Mode
+140,R_TPOJ2,4,Ventral Salience
+141,R_TPOJ3,1,Visual
+142,R_DVT,1,Visual
+143,R_PGp,1,Visual
+144,R_IP2,6,Central Executive
+145,R_IP1,6,Central Executive
+146,R_IP0,1,Visual
+147,R_PFop,4,Ventral Salience
+148,R_PF,3,Dorsal Salience
+149,R_PFm,6,Central Executive
+150,R_PGi,5,Default Mode
+151,R_PGs,6,Central Executive
+152,R_V6A,1,Visual
+153,R_VMV1,1,Visual
+154,R_VMV3,1,Visual
+155,R_PHA2,5,Default Mode
+156,R_V4t,1,Visual
+157,R_FST,1,Visual
+158,R_V3CD,1,Visual
+159,R_LO3,1,Visual
+160,R_VMV2,1,Visual
+161,R_31pd,5,Default Mode
+162,R_31a,6,Central Executive
+163,R_VVC,1,Visual
+164,R_25,5,Default Mode
+165,R_s32,5,Default Mode
+166,R_pOFC,6,Central Executive
+167,R_PoI1,4,Ventral Salience
+168,R_Ig,2,Somatomotor
+169,R_FOP5,4,Ventral Salience
+170,R_p10p,6,Central Executive
+171,R_p47r,6,Central Executive
+172,R_TGv,5,Default Mode
+173,R_MBelt,2,Somatomotor
+174,R_LBelt,2,Somatomotor
+175,R_A4,2,Somatomotor
+176,R_STSva,5,Default Mode
+177,R_TE1m,6,Central Executive
+178,R_PI,4,Ventral Salience
+179,R_a32pr,4,Ventral Salience
+180,R_p24,6,Central Executive
+181,L_V1,1,Visual
+182,L_MST,1,Visual
+183,L_V6,1,Visual
+184,L_V2,1,Visual
+185,L_V3,1,Visual
+186,L_V4,1,Visual
+187,L_V8,1,Visual
+188,L_4,2,Somatomotor
+189,L_3b,2,Somatomotor
+190,L_FEF,4,Ventral Salience
+191,L_PEF,3,Dorsal Salience
+192,L_55b,5,Default Mode
+193,L_V3A,1,Visual
+194,L_RSC,6,Central Executive
+195,L_POS2,6,Central Executive
+196,L_V7,1,Visual
+197,L_IPS1,1,Visual
+198,L_FFC,1,Visual
+199,L_V3B,1,Visual
+200,L_LO1,1,Visual
+201,L_LO2,1,Visual
+202,L_PIT,1,Visual
+203,L_MT,1,Visual
+204,L_A1,2,Somatomotor
+205,L_PSL,5,Default Mode
+206,L_SFL,5,Default Mode
+207,L_PCV,5,Default Mode
+208,L_STV,5,Default Mode
+209,L_7Pm,6,Central Executive
+210,L_7m,5,Default Mode
+211,L_POS1,5,Default Mode
+212,L_23d,6,Central Executive
+213,L_v23ab,5,Default Mode
+214,L_d23ab,5,Default Mode
+215,L_31pv,5,Default Mode
+216,L_5m,2,Somatomotor
+217,L_5mv,4,Ventral Salience
+218,L_23c,4,Ventral Salience
+219,L_5L,2,Somatomotor
+220,L_24dd,2,Somatomotor
+221,L_24dv,2,Somatomotor
+222,L_7AL,4,Ventral Salience
+223,L_SCEF,4,Ventral Salience
+224,L_6ma,4,Ventral Salience
+225,L_7Am,3,Dorsal Salience
+226,L_7PL,3,Dorsal Salience
+227,L_7PC,2,Somatomotor
+228,L_LIPv,1,Visual
+229,L_VIP,1,Visual
+230,L_MIP,1,Visual
+231,L_1,2,Somatomotor
+232,L_2,2,Somatomotor
+233,L_3a,2,Somatomotor
+234,L_6d,2,Somatomotor
+235,L_6mp,2,Somatomotor
+236,L_6v,2,Somatomotor
+237,L_p24pr,4,Ventral Salience
+238,L_33pr,6,Central Executive
+239,L_a24pr,4,Ventral Salience
+240,L_p32pr,4,Ventral Salience
+241,L_a24,5,Default Mode
+242,L_d32,5,Default Mode
+243,L_8BM,6,Central Executive
+244,L_p32,5,Default Mode
+245,L_10r,5,Default Mode
+246,L_47m,5,Default Mode
+247,L_8Av,5,Default Mode
+248,L_8Ad,5,Default Mode
+249,L_9m,5,Default Mode
+250,L_8BL,5,Default Mode
+251,L_9p,5,Default Mode
+252,L_10d,5,Default Mode
+253,L_8C,6,Central Executive
+254,L_44,5,Default Mode
+255,L_45,5,Default Mode
+256,L_47l,5,Default Mode
+257,L_a47r,6,Central Executive
+258,L_6r,3,Dorsal Salience
+259,L_IFJa,6,Central Executive
+260,L_IFJp,6,Central Executive
+261,L_IFSp,5,Default Mode
+262,L_IFSa,3,Dorsal Salience
+263,L_p9-46v,6,Central Executive
+264,L_46,4,Ventral Salience
+265,L_a9-46v,6,Central Executive
+266,L_9-46d,4,Ventral Salience
+267,L_9a,5,Default Mode
+268,L_10v,5,Default Mode
+269,L_a10p,6,Central Executive
+270,L_10pp,5,Default Mode
+271,L_11l,4,Ventral Salience
+272,L_13l,6,Central Executive
+273,L_OFC,6,Central Executive
+274,L_47s,5,Default Mode
+275,L_LIPd,3,Dorsal Salience
+276,L_6a,3,Dorsal Salience
+277,L_i6-8,6,Central Executive
+278,L_s6-8,6,Central Executive
+279,L_43,4,Ventral Salience
+280,L_OP4,2,Somatomotor
+281,L_OP1,2,Somatomotor
+282,L_OP2-3,2,Somatomotor
+283,L_52,2,Somatomotor
+284,L_RI,2,Somatomotor
+285,L_PFcm,4,Ventral Salience
+286,L_PoI2,4,Ventral Salience
+287,L_TA2,2,Somatomotor
+288,L_FOP4,4,Ventral Salience
+289,L_MI,4,Ventral Salience
+290,L_Pir,2,Somatomotor
+291,L_AVI,6,Central Executive
+292,L_AAIC,6,Central Executive
+293,L_FOP1,4,Ventral Salience
+294,L_FOP3,4,Ventral Salience
+295,L_FOP2,2,Somatomotor
+296,L_PFt,3,Dorsal Salience
+297,L_AIP,3,Dorsal Salience
+298,L_EC,5,Default Mode
+299,L_PreS,5,Default Mode
+300,L_H,5,Default Mode
+301,L_ProS,5,Default Mode
+302,L_PeEc,5,Default Mode
+303,L_STGa,5,Default Mode
+304,L_PBelt,2,Somatomotor
+305,L_A5,5,Default Mode
+306,L_PHA1,5,Default Mode
+307,L_PHA3,5,Default Mode
+308,L_STSda,5,Default Mode
+309,L_STSdp,5,Default Mode
+310,L_STSvp,5,Default Mode
+311,L_TGd,5,Default Mode
+312,L_TE1a,5,Default Mode
+313,L_TE1p,6,Central Executive
+314,L_TE2a,6,Central Executive
+315,L_TF,5,Default Mode
+316,L_TE2p,3,Dorsal Salience
+317,L_PHT,3,Dorsal Salience
+318,L_PH,1,Visual
+319,L_TPOJ1,5,Default Mode
+320,L_TPOJ2,4,Ventral Salience
+321,L_TPOJ3,1,Visual
+322,L_DVT,1,Visual
+323,L_PGp,1,Visual
+324,L_IP2,6,Central Executive
+325,L_IP1,6,Central Executive
+326,L_IP0,1,Visual
+327,L_PFop,4,Ventral Salience
+328,L_PF,3,Dorsal Salience
+329,L_PFm,6,Central Executive
+330,L_PGi,5,Default Mode
+331,L_PGs,5,Default Mode
+332,L_V6A,1,Visual
+333,L_VMV1,1,Visual
+334,L_VMV3,1,Visual
+335,L_PHA2,5,Default Mode
+336,L_V4t,1,Visual
+337,L_FST,1,Visual
+338,L_V3CD,1,Visual
+339,L_LO3,1,Visual
+340,L_VMV2,1,Visual
+341,L_31pd,5,Default Mode
+342,L_31a,6,Central Executive
+343,L_VVC,1,Visual
+344,L_25,5,Default Mode
+345,L_s32,5,Default Mode
+346,L_pOFC,6,Central Executive
+347,L_PoI1,4,Ventral Salience
+348,L_Ig,2,Somatomotor
+349,L_FOP5,4,Ventral Salience
+350,L_p10p,6,Central Executive
+351,L_p47r,6,Central Executive
+352,L_TGv,5,Default Mode
+353,L_MBelt,2,Somatomotor
+354,L_LBelt,2,Somatomotor
+355,L_A4,2,Somatomotor
+356,L_STSva,5,Default Mode
+357,L_TE1m,6,Central Executive
+358,L_PI,2,Somatomotor
+359,L_a32pr,6,Central Executive
+360,L_p24,6,Central Executive
+361,,7,Subcortical
+362,,7,Subcortical
+363,,7,Subcortical
+364,,7,Subcortical
+365,,7,Subcortical
+366,,7,Subcortical
+367,,7,Subcortical
+368,,7,Subcortical
+369,,7,Subcortical
+370,,7,Subcortical
+371,,7,Subcortical
+372,,7,Subcortical
+373,,7,Subcortical
+374,,7,Subcortical
+375,,7,Subcortical
+376,,7,Subcortical
+377,,7,Subcortical
+378,,7,Subcortical
+379,,7,Subcortical
