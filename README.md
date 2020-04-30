@@ -10,13 +10,13 @@ Risk, B. and Gaynanova, I. "Simultaneous Non-Gaussian Component Analysis (SING) 
 
 **CfunctionsCurvilinear.cpp** - additional C++ functions for implementation of curvilinear algorithm used for SING optimization; equivalent R functions can be found in **jngcaFunctions.R**
 
+**makecifti.R** - R function to make cifti files, modified version from [Mandy Mejia](https://mandymejia.com), see her original version with instructions [here](https://mandymejia.com/2016/10/28/r-function-to-write-cifti-files/)
+
 ## Supporting data
 
 **ComponentsForSim_setting2.Rda** - Shared and individual components used to simulate large-scale data for Simulation Setting 2
 
-**community_affiliation_mmplus.csv** - File to support visualization of 
-
-[here](https://www.nature.com/articles/s41598-019-55738-y).
+**community_affiliation_mmplus.csv** - File to support visualization of resting state correlations, our version is modified from [this paper](https://www.nature.com/articles/s41598-019-55738-y). A similar version can be also found [here](https://github.com/emergelab/hierarchical-brain-networks/blob/master/brainmaps/node_affiliations/AA_all_maps.csv).
 
 ## Simulations scripts
 
