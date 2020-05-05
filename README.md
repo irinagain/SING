@@ -2,7 +2,7 @@
 
 SING method implementation and code to reproduce results in corresponding paper
 
-Risk, B. and Gaynanova, I. "Simultaneous Non-Gaussian Component Analysis (SING) for Data Integration in Neuroimaging"
+Risk, B. and Gaynanova, I. *"Simultaneous Non-Gaussian Component Analysis (SING) for Data Integration in Neuroimaging"* [arXiv link](https://github.com/irinagain/SING)
 
 ## Main functions
 
