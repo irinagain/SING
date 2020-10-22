@@ -3,6 +3,7 @@
 
 # Source all the functions
 source("jngcaFunctions.R")
+source("mCCAjointICA.R")
 
 # Use R libraries for parallel environment
 library(doParallel)
@@ -46,6 +47,10 @@ results <- foreach(i=1:nrep, .errorhandling='pass', .noexport = "updateUboth_c",
   
   # Generate the data with the specified signal and noise ratio
   data <- generateData_v2(nsubject = 48, snr = c(snr1[i], snr2[i]), vars = c(var_level, var_level))
+  trueJx <- data$mj %*% data$sjX
+  trueJy <- t(t(data$mj)*c(-5,2)) %*% data$sjY
+  trueJxF2 <- sum(trueJx^2) # Frobenius norm squared of joint part of X
+  trueJyF2 <- sum(trueJy^2) # Frobenius norm squared of joint part of Y
   
   # Prepare the output list
   output <- list(snr1 = snr1[i], snr2 = snr2[i], JBsep = NULL, JBjoint = NULL, jointICA = NULL, R2x = data$R2x, R2y = data$R2y)
@@ -107,17 +112,33 @@ results <- foreach(i=1:nrep, .errorhandling='pass', .noexport = "updateUboth_c",
   errorMx = frobICA(M1 = t(matchMxMy$Mx[,1:2]), M2 = t(data$mj), standardize  = T)*sqrt(nrow(data$mj))
   errorMy = frobICA(M1 = t(matchMxMy$My[,1:2]), M2 = t(data$mj), standardize  = T)*sqrt(nrow(data$mj))
   
-  # Error from averaged mixing matrix
-  cordiag = diag(cor(matchMxMy$Mx[,1:2], matchMxMy$My[,1:2]))
-  newM = (matchMxMy$Mx[,1:2] + matchMxMy$My[,1:2]%*% sign(diag(cordiag)))
-  newM = newM %*% diag(1/apply(newM, 2, function(x) sqrt(sum(x^2))))
-  errorM = frobICA(M1 = t(newM), M2 = t(data$mj), standardize  = T)*sqrt(nrow(data$mj))
-  
   Mdist = frobICA(M1 = t(matchMxMy$Mx[,1:2]), M2 = t(matchMxMy$My[,1:2]), standardize  = T) * sqrt(nrow(data$mj))
   
+  # Joint signal Frobenius norm reconstruction error
+  errorJx = sum((tcrossprod(matchMxMy$Mx[,1:2], Sx[ , 1:2]) - trueJx)^2)/trueJxF2
+  errorJy = sum((tcrossprod(matchMxMy$My[,1:2], Sy[ , 1:2]) - trueJy)^2)/trueJyF2
+  
+  output$JBsep <- list(errorSx = errorSx, errorSy = errorSy, errorMx = errorMx, errorMy = errorMy, Mdist = Mdist, errorJx = errorJx, errorJy = errorJy)
 
-  output$JBsep <- list(errorSx = errorSx, errorSy = errorSy, errorMx = errorMx, errorMy = errorMy, errorM = errorM, Mdist = Mdist, cor = abs(cordiag))
-
+  # Apply separate JB to each (LNGCA model), but then average and recompute
+  ##################################################################################################
+  
+  # Error from averaged mixing matrix
+  newM = aveM(matchMxMy$Mx[,1:2], matchMxMy$My[,1:2])
+  errorM = frobICA(M1 = t(newM), M2 = t(data$mj), standardize  = T)*sqrt(nrow(data$mj))
+  
+  # Back projection on the mixing matrix
+  outx <- est.S.backproject(t(Sx[ , 1:2]), matchMxMy$Mx[,1:2], newM)
+  outy <- est.S.backproject(t(Sy[ , 1:2]), matchMxMy$My[,1:2], newM)
+  
+  errorSxAve = frobICA(S2 = t(data$sjX), S1 = t(outx$S), standardize  = T)
+  errorSyAve = frobICA(S2 = t(data$sjY), S1 = t(outy$S), standardize  = T)
+  
+  # Joint signal Frobenius norm reconstruction error with average
+  errorJxave = sum((newM %*% diag(outx$D) %*% outx$S/sqrt(pX-1) - trueJx)^2)/trueJxF2
+  errorJyave = sum((newM %*% diag(outy$D) %*% outy$S/sqrt(pY-1) - trueJy)^2)/trueJyF2
+  
+  output$JBsepAve <- list(errorSx = errorSxAve, errorSy = errorSyAve, errorMx = errorM, errorMy = errorM, errorJx = errorJxave, errorJy = errorJyave)
   
 
   ##################################################################################################
@@ -150,17 +171,18 @@ results <- foreach(i=1:nrep, .errorhandling='pass', .noexport = "updateUboth_c",
   errorMx = frobICA(M1 = t(Mxjoint), M2 = t(data$mj), standardize  = T) * sqrt(nrow(data$mj))
   errorMy = frobICA(M1 = t(Myjoint), M2 = t(data$mj), standardize  = T) * sqrt(nrow(data$mj))
   # Error from averaged mixing matrix
-  Mx = Mxjoint %*% diag(1/apply(Mxjoint, 2, function(x) sqrt(sum(x^2))))
-  My = Myjoint %*% diag(1/apply(Myjoint, 2, function(x) sqrt(sum(x^2))))
-  cordiag = diag(cor(Mx, My))
-  newM = (Mx + My %*% sign(diag(cordiag)))
-  newM = newM %*% diag(1/apply(newM, 2, function(x) sqrt(sum(x^2))))
-  
+  newM = aveM(Mxjoint, Myjoint)
   errorM = frobICA(M1 = t(newM), M2 = t(data$mj), standardize  = T) * sqrt(nrow(data$mj))
   
   Mdist = frobICA(M1 = t(Mxjoint), M2 = t(Myjoint), standardize  = T) * sqrt(nrow(data$mj))
+  
+  # Joint signal Frobenius norm reconstruction error
+  errorJx = sum((Mxjoint %*% Sxjoint - trueJx)^2)/trueJxF2
+  errorJy = sum((Myjoint %*% Syjoint - trueJy)^2)/trueJyF2
+  
+  
 
-  small = list(rho = rho, errorSx = errorSx, errorSy = errorSy, errorMx = errorMx, errorMy = errorMy, errorM = errorM, Mdist = Mdist, cor = abs(cordiag))
+  small = list(rho = rho, errorSx = errorSx, errorSy = errorSy, errorMx = errorMx, errorMy = errorMy, errorM = errorM, Mdist = Mdist, errorJx = errorJx, errorJy = errorJy)
 
   # Medium rho (JB)
   ##################################################################################################
@@ -185,17 +207,16 @@ results <- foreach(i=1:nrep, .errorhandling='pass', .noexport = "updateUboth_c",
   errorMy = frobICA(M1 = t(Myjoint), M2 = t(data$mj), standardize  = T) * sqrt(nrow(data$mj))
   
   # Error from averaged mixing matrix
-  Mx = Mxjoint %*% diag(1/apply(Mxjoint, 2, function(x) sqrt(sum(x^2))))
-  My = Myjoint %*% diag(1/apply(Myjoint, 2, function(x) sqrt(sum(x^2))))
-  cordiag = diag(cor(Mx, My))
-  newM = (Mx + My %*% sign(diag(cordiag)))
-  newM = newM %*% diag(1/apply(newM, 2, function(x) sqrt(sum(x^2))))
-  
+  newM = aveM(Mxjoint, Myjoint)
   errorM = frobICA(M1 = t(newM), M2 = t(data$mj), standardize  = T) * sqrt(nrow(data$mj))
 
   Mdist = frobICA(M1 = t(Mxjoint), M2 = t(Myjoint), standardize  = T) * sqrt(nrow(data$mj))
+  
+  # Joint signal Frobenius norm reconstruction error
+  errorJx = sum((Mxjoint %*% Sxjoint - trueJx)^2)/trueJxF2
+  errorJy = sum((Myjoint %*% Syjoint - trueJy)^2)/trueJyF2
 
-  medium = list(rho = rho, errorSx = errorSx, errorSy = errorSy, errorMx = errorMx, errorMy = errorMy, errorM = errorM, Mdist = Mdist, cor = abs(cordiag))
+  medium = list(rho = rho, errorSx = errorSx, errorSy = errorSy, errorMx = errorMx, errorMy = errorMy, errorM = errorM, Mdist = Mdist, errorJx = errorJx, errorJy = errorJy)
 
   # Large rho (JB X 2)
   ##################################################################################################
@@ -218,46 +239,55 @@ results <- foreach(i=1:nrep, .errorhandling='pass', .noexport = "updateUboth_c",
   # Mixing matrices
   errorMx = frobICA(M1 = t(Mxjoint), M2 = t(data$mj), standardize  = T) * sqrt(nrow(data$mj))
   errorMy = frobICA(M1 = t(Myjoint), M2 = t(data$mj), standardize  = T) * sqrt(nrow(data$mj))
+  
   # Error from averaged mixing matrix
-  Mx = Mxjoint %*% diag(1/apply(Mxjoint, 2, function(x) sqrt(sum(x^2))))
-  My = Myjoint %*% diag(1/apply(Myjoint, 2, function(x) sqrt(sum(x^2))))
-  cordiag = diag(cor(Mx, My))
-  newM = (Mx + My %*% sign(diag(cordiag)))
-  newM = newM %*% diag(1/apply(newM, 2, function(x) sqrt(sum(x^2))))
+  newM = aveM(Mxjoint, Myjoint)
   errorM = frobICA(M1 = t(newM), M2 = t(data$mj), standardize  = T) * sqrt(nrow(data$mj))
 
   Mdist = frobICA(M1 = t(Mxjoint), M2 = t(Myjoint), standardize  = T) * sqrt(nrow(data$mj))
+  
+  # Joint signal Frobenius norm reconstruction error
+  errorJx = sum((Mxjoint %*% Sxjoint - trueJx)^2)/trueJxF2
+  errorJy = sum((Myjoint %*% Syjoint - trueJy)^2)/trueJyF2
 
-  large = list(rho = rho, errorSx = errorSx, errorSy = errorSy, errorMx = errorMx, errorMy = errorMy, errorM = errorM, Mdist = Mdist, cor = abs(cordiag))
+  large = list(rho = rho, errorSx = errorSx, errorSy = errorSy, errorMx = errorMx, errorMy = errorMy, errorM = errorM, Mdist = Mdist, errorJx = errorJx, errorJy = errorJy)
 
   output$JBjoint <- list(small = small, medium = medium, large = large)
   
   ##################################################################################################
   # Apply Joint ICA, and calculate the errors
   ##################################################################################################
-  
-  # Normalization step, divide by \|X\|_F^2 each part
-  dXsA <- dXsA/sqrt(mean(dXsA^2))
-  dYsA <- dYsA/sqrt(mean(dYsA^2))
-  
-  # Concatenate them together [X, Y] and perform SVD (PCA)
-  dXY <- cbind(dXsA, dYsA) # [X, Y] ~ UDV'
-  svdXY <- svd(dXY, nu = 2, nv = 2) # 2 is the true number of joint components
-  # Scale V to have sd 1
-  sds <- apply(svdXY$v, 2, sd)
-  Vscaled <- svdXY$v %*% diag(1/sds)
-  
-  # JB on V, PCA loadings from above
-  estXY_JB = mlcaFP(xData = Vscaled, n.comp = 2, whiten = 'none', restarts.pbyd = 20, distribution='JB')
-  # Get the corresponding M by Least Squares on original data
-  Mjoint = est.M.ols(sData = estXY_JB$S, xData = t(dXY))
+  out_jointICA <- jointICA(dXsA, dYsA, r0 = 2)
   
   # What are the errors?
-  errorSx = frobICA(S1 = t(data$sjX), S2 = estXY_JB$S[1:pX, ], standardize  = T)
-  errorSy = frobICA(S1 = t(data$sjY), S2 = estXY_JB$S[(pX+1):(pX+pY), ], standardize  = T)
-  errorM = frobICA(M1 = Mjoint, M2 = t(data$mj), standardize = T) * sqrt(nrow(data$mj))
+  errorSx = frobICA(S1 = t(data$sjX), S2 = out_jointICA$S[1:pX, ], standardize  = T)
+  errorSy = frobICA(S1 = t(data$sjY), S2 = out_jointICA$S[(pX+1):(pX+pY), ], standardize  = T)
+  errorM = frobICA(M1 = out_jointICA$Mjoint, M2 = t(data$mj), standardize = T) * sqrt(nrow(data$mj))
   
-  output$jointICA <- list(errorSx = errorSx, errorSy = errorSy, errorM = errorM)
+  # Joint signal Frobenius norm reconstruction error
+  errorJx = sum((tcrossprod(t(out_jointICA$Mjoint), out_jointICA$S[1:pX, ]) * sqrt(mean(dXsA^2)) - trueJx)^2)/trueJxF2
+  errorJy = sum((tcrossprod(t(out_jointICA$Mjoint), out_jointICA$S[(pX+1):(pX+pY), ])* sqrt(mean(dYsA^2)) - trueJy)^2)/trueJyF2
+  
+  output$jointICA <- list(errorSx = errorSx, errorSy = errorSy, errorM = errorM, errorJx = errorJx, errorJy = errorJy)
+  
+  ###############################################################################
+  # Apply mCCA + Joint ICA, and calculate the errors
+  ###############################################################################
+  out_mcca <- mCCA_jointICA(dXsA, dYsA, Mx = 3, My = 4, M = 2)
+  
+  # What are the errors?
+  errorSx = frobICA(S1 = t(data$sjX), S2 = out_mcca$S[1:pX, ], standardize  = T)
+  errorSy = frobICA(S1 = t(data$sjY), S2 = out_mcca$S[(pX+1):(pX+pY), ], standardize  = T)
+  errorMx = frobICA(M1 = out_mcca$Mx, M2 = t(data$mj), standardize  = T) * sqrt(nrow(data$mj))
+  errorMy = frobICA(M1 = out_mcca$My, M2 = t(data$mj), standardize  = T) * sqrt(nrow(data$mj))
+  
+  Mdist = frobICA(M1 = out_mcca$Mx, M2 = out_mcca$My, standardize  = T) * sqrt(nrow(data$mj))
+  
+  # Joint signal Frobenius norm reconstruction error
+  errorJx = sum((tcrossprod(t(out_mcca$Mx), out_mcca$S[1:pX, ]) - trueJx)^2)/trueJxF2
+  errorJy = sum((tcrossprod(t(out_mcca$My), out_mcca$S[(pX+1):(pX+pY), ]) - trueJy)^2)/trueJyF2
+  
+  output$mCCA <- list(errorSx = errorSx, errorSy = errorSy, errorMx = errorMx, errorMy = errorMy, Mdist = Mdist, errorJx = errorJx, errorJy = errorJy)
   
   output
 }
