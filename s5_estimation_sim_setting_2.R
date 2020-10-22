@@ -7,6 +7,7 @@ load("SimulatedLargeScaleindiv10.Rdata")
 
 # Source functions for estimation
 source("jngcaFunctions.R")
+source("mCCAjointICA.R")
 
 # Center X and Y
 n = nrow(dX)
@@ -14,37 +15,31 @@ pX = ncol(dX)
 pY = ncol(dY)
 dXcentered <- dX - matrix(rowMeans(dX), n, pX, byrow = F)
 dYcentered <- dY - matrix(rowMeans(dY), n, pY, byrow = F)
+trueJx <- mj %*% rbind(sj1x, sj2x)
+trueJy <- t(t(mj) * c(-5, 2)) %*% rbind(sj1y, sj2y)
+trueJxF2 <- sum(trueJx^2)
+trueJyF2 <- sum(trueJy^2)
 
 ## Apply JointICA
 #############################################################
-# Normalization step here. Divide by \|X\|_F^2 each part
-dXsA <- dXcentered/sqrt(mean(dXcentered^2))
-dYsA <- dYcentered/sqrt(mean(dYcentered^2))
-
-# Concatenate them together [X, Y] and perform SVD (PCA)
-dXY <- cbind(dXsA, dYsA) # [X, Y] ~ UDV'
-svdXY <- svd(dXY, nu = 2, nv = 2) # 2 is the number of joint components
-# Scale V to have sd 1
-sds <- apply(svdXY$v, 2, sd)
-Vscaled <- svdXY$v %*% diag(1/sds)
-
-# JB on V, PCA loadings from above
-estXY_JB = mlcaFP(xData = Vscaled, n.comp = 2, whiten = 'none', restarts.pbyd = 20, distribution='JB')
-Ujoint <- estXY_JB
-# Get the corresponding M by Least Squares on original data 
-Mjoint = est.M.ols(sData = estXY_JB$S, xData = t(dXY))
+out_jointICA <- jointICA(dXcentered, dYcentered, r0 = 2)
 
 # What are the errors?
-errorSx = frobICA(S1 = t(rbind(sj1x, sj2x)), S2 = estXY_JB$S[1:pX, ], standardize  = T)
+errorSx = frobICA(S1 = t(rbind(sj1x, sj2x)), S2 = out_jointICA$S[1:pX, ], standardize  = T)
 errorSx # 1.41
-errorSy = frobICA(S1 = t(rbind(sj1y, sj2y)), S2 = estXY_JB$S[(pX+1):(pX+pY), ], standardize  = T)
+errorSy = frobICA(S1 = t(rbind(sj1y, sj2y)), S2 = out_jointICA$S[(pX+1):(pX+pY), ], standardize  = T)
 errorSy # 1.41
-errorM = frobICA(M1 = Mjoint, M2 = t(mj), standardize = T) * sqrt(ncol(Mjoint))
+errorM = frobICA(M1 = out_jointICA$Mjoint, M2 = t(mj), standardize = T) * sqrt(nrow(mj))
 errorM # 1.36
+
+# Joint signal Frobenius norm reconstruction error [DISCUSS with BEN]
+errorJx = sum((tcrossprod(t(out_jointICA$Mjoint), out_jointICA$S[1:pX, ]) * sqrt(mean(dXcentered^2)) - trueJx)^2)/trueJxF2
+errorJx #89.3
+errorJy = sum((tcrossprod(t(out_jointICA$Mjoint), out_jointICA$S[(pX + 1):(pX + pY), ])* sqrt(mean(dYcentered^2)) - trueJy)^2)/trueJyF2 # 61.1
 
 
 # Prepare the output list for joint ICA
-output_jointICA <- list(errorSx = errorSx, errorSy = errorSy, errorM = errorM, estXY_JB = estXY_JB)
+output_jointICA <- list(errorSx = errorSx, errorSy = errorSy, errorM = errorM, errorJx = errorJx, errorJy = errorJy)
 save(output_jointICA, file = "jointICA_LargeScaleindiv10.Rda")
 
 # Joint rank estimation based on oversaturated models
@@ -59,6 +54,8 @@ estY_JB = mlcaFP(xData = t(dY), n.comp = 48, whiten = 'sqrtprec', restarts.pbyd 
 # Get joint components out
 My_JB = est.M.ols(sData = estY_JB$S, xData = t(dY))
 
+alpha = 0.05
+nperms = 1000
 matchedResults = angleMatchICA(t(Mx_JB), t(My_JB))
 permuteJoint = permmatRank_joint(matchedResults, nperms = nperms)
 joint_rank = min(which(permuteJoint$pvalues > alpha)) - 1
@@ -75,12 +72,6 @@ Uxfull <- estX_JB$Ws
 # Match mixing matrices to get correct ordering, then can get starting points
 Mx_JB = est.M.ols(sData = estX_JB$S, xData = t(dX))
 
-errorMx = frobICA(M1 = Mx_JB, M2 = t(mj), standardize = T)*sqrt(ncol(Mx_JB))
-errorMx # 0.295
-
-errorSx = frobICA(S1 = t(rbind(sj1x, sj2x)), S2 = estX_JB$S, standardize  = T)
-errorSx # 0.051 
-
 # JB on Y
 estY_JB = mlcaFP(xData = t(dY), n.comp = 12, whiten = 'sqrtprec', restarts.pbyd = 20, distribution='JB')
 Uyfull <- estY_JB$Ws
@@ -88,15 +79,33 @@ Uyfull <- estY_JB$Ws
 # Get joint components out
 My_JB = est.M.ols(sData = estY_JB$S, xData = t(dY))
 
-errorMy = frobICA(M1 = My_JB, M2 = t(mj), standardize = T)*sqrt(ncol(My_JB))
+matchMxMy = greedymatch(t(Mx_JB), t(My_JB), Ux = t(Uxfull), Uy = t(Uyfull))
+
+cor(matchMxMy$Mx[, 1:2], matchMxMy$My[, 1:2]) # 0.95 and 0.93
+
+errorMx = frobICA(M1 = t(matchMxMy$Mx[, 1:2]), M2 = t(mj), standardize = T)*sqrt(ncol(Mx_JB))
+errorMx # 0.295
+
+errorMy = frobICA(M1 = t(matchMxMy$My[, 1:2]), M2 = t(mj), standardize = T)*sqrt(ncol(My_JB))
 errorMy # 0.208
 
-errorSy = frobICA(S1 = t(rbind(sj1y, sj2y)), S2 = estY_JB$S, standardize  = T)
+errorSx = frobICA(S1 = t(rbind(sj1x, sj2x)), S2 = estX_JB$S[, matchMxMy$mapX[1:2]], standardize  = T)
+errorSx # 0.051 
+
+errorSy = frobICA(S1 = t(rbind(sj1y, sj2y)), S2 = estY_JB$S[, matchMxMy$mapY[1:2]], standardize  = T)
 errorSy # 0.031
+
+errorJx = sum((tcrossprod(matchMxMy$Mx[, 1:2],  estX_JB$S[, matchMxMy$mapX[1:2]]) - trueJx)^2)/trueJxF2
+errorJx #0.095
+
+errorJy = sum((tcrossprod(matchMxMy$My[, 1:2], estY_JB$S[, matchMxMy$mapY[1:2]])  - trueJy)^2)/trueJyF2
+errorJy #0.025
+              
+
 
 
 # Prepare the output list for separate JB
-output_sepJB <- list(errorSx = errorSx, errorSy = errorSy, errorMx = errorMx, errorMy = errorMy, estX_JB = estX_JB, estY_JB = estY_JB, mj = mj)
+output_sepJB <- list(errorSx = errorSx, errorSy = errorSy, errorMx = errorMx, errorMy = errorMy, errorJx = errorJx, errorJy = errorJy, estX_JB = estX_JB, estY_JB = estY_JB, mj = mj)
 save(output_sepJB, file = "sepJB_LargeScale.Rda")
 
 
@@ -129,11 +138,7 @@ yDataA = whitenerYA %*% dYcentered
 invLy = est.sigmaYA%^%(0.5)
 
 # Starting points for the algorithm are Us
-###########################################
-
-matchMxMy = greedymatch(t(Mx_JB), t(My_JB), Ux = t(Uxfull), Uy = t(Uyfull))
-
-cor(matchMxMy$Mx[, 1:2], matchMxMy$My[, 1:2]) # 0.95 and 0.93
+##########################################
 
 # Calculate JB values
 JBall = calculateJB(matchMxMy$Ux[1:2, ], X = xDataA) + calculateJB(matchMxMy$Uy[1:2, ], X = yDataA)
@@ -165,3 +170,31 @@ save(out_indiv_medium, file = "out_indiv_medium.Rda")
 rho = JBall * 10
 out_indiv_large <- updateUboth_c(invLx = invLx, invLy = invLy, xData = xDataA, yData = yDataA, Ux = out_indiv_medium$Ux, Uy = out_indiv_medium$Uy, rho = rho, tol = tol, alpha = alpha, maxiter = 1500, r0 = 2)
 save(out_indiv_large, file = "out_indiv_large.Rda")
+
+###############################################################################
+# Apply mCCA + Joint ICA, and calculate the errors
+###############################################################################
+out_mcca <- mCCA_jointICA(dXcentered, dYcentered, Mx = 12, My = 12, M = 2)
+
+# What are the errors?
+errorSx = frobICA(S1 = t(rbind(sj1x, sj2x)), S2 = out_mcca$S[1:pX, ], standardize  = T)
+errorSx #1.41
+errorSy = frobICA(S1 = t(rbind(sj1y, sj2y)), S2 = out_mcca$S[(pX+1):(pX+pY), ], standardize  = T)
+errorSy #1.41
+errorMx = frobICA(M1 = out_mcca$Mx, M2 = t(mj), standardize  = T) * sqrt(nrow(mj))
+errorMx #1.37
+errorMy = frobICA(M1 = out_mcca$My, M2 = t(mj), standardize  = T) * sqrt(nrow(mj))
+errorMy #1.32
+
+Mdist = frobICA(M1 = out_mcca$Mx, M2 = out_mcca$My, standardize  = T) * sqrt(nrow(mj)) 
+Mdist #0.75; correlations 0.75 and 0.7
+
+# Joint signal Frobenius norm reconstruction error
+errorJx = sum((tcrossprod(t(out_mcca$Mx), out_mcca$S[1:pX, ]) - trueJx)^2)/trueJxF2
+# 92.2
+errorJy = sum((tcrossprod(t(out_mcca$My), out_mcca$S[(pX+1):(pX+pY), ]) - trueJy)^2)/trueJyF2
+# 62.3 - awful
+
+output_mCCA <- list(errorSx = errorSx, errorSy = errorSy, errorMx = errorMx, errorMy = errorMy, Mdist = Mdist, errorJx = errorJx, errorJy = errorJy)
+
+save(output_mCCA, file = "mCCA_LargeScale.Rda")
