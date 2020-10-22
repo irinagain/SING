@@ -10,6 +10,7 @@
 source("jngcaFunctions.R")
 
 # Generate data, will return both components and mixing matrix
+set.seed(0573452)
 data <- generateData_v2(nsubject = 48, snr = c(1, 1), vars = c(0.005, 0.005))
 
 # Components for X
@@ -17,18 +18,18 @@ lgrid = 33
 
 pdf(file = "ComponentsX.pdf", width = 12, height = 5)
 par(mfrow = c(1,3))
-image(matrix(data$siX[1,], lgrid, lgrid), xaxt = "n", yaxt = "n")
+image(matrix(data$siX[1,], lgrid, lgrid), col = heat.colors(12), xaxt = "n", yaxt = "n")
 image(matrix(data$sjX[1,], lgrid, lgrid), col = heat.colors(12), xaxt = "n", yaxt = "n")
-image(matrix(data$sjX[2,], lgrid, lgrid), xaxt = "n", yaxt = "n")
+image(matrix(data$sjX[2,], lgrid, lgrid), col = heat.colors(12), xaxt = "n", yaxt = "n")
 dev.off()
 
 # Components for Y
 pdf(file = "ComponentsY.pdf", width = 12, height = 5)
 par(mfrow = c(1,4))
-image(vec2net(data$sjY[1,]), xaxt = "n", yaxt = "n")
-image(vec2net(data$sjY[2,]), xaxt = "n", yaxt = "n")
-image(vec2net(data$siY[1,]), xaxt = "n", yaxt = "n")
-image(vec2net(data$siY[2,]), xaxt = "n", yaxt = "n")
+image(vec2net(data$sjY[1,]), col = heat.colors(12), xaxt = "n", yaxt = "n")
+image(vec2net(data$sjY[2,]), col = heat.colors(12), xaxt = "n", yaxt = "n")
+image(vec2net(data$siY[1,]), col = heat.colors(12), xaxt = "n", yaxt = "n")
+image(vec2net(data$siY[2,]), col = heat.colors(12), xaxt = "n", yaxt = "n")
 dev.off()
 
 ######################################################
@@ -115,18 +116,25 @@ load("SimResults_estimation_small.Rdata")
 
 # Create dataframe with all results
 
-dataSep <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$JBsep$errorSx), errorSy = sapply(results, function(x) x$JBsep$errorSy), errorMx = sapply(results, function(x) x$JBsep$errorMx), errorMy = sapply(results, function(x) x$JBsep$errorMy), method = rep("Sep", nrep), errorM = sapply(results, function(x) x$JBsep$errorM), Mdist = sapply(results, function(x) x$JBsep$Mdist))
+dataSep <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$JBsep$errorSx), errorSy = sapply(results, function(x) x$JBsep$errorSy), errorMx = sapply(results, function(x) x$JBsep$errorMx), errorMy = sapply(results, function(x) x$JBsep$errorMy), method = rep("Sep", nrep), errorJx = sapply(results, function(x) x$JBsep$errorJx), errorJy = sapply(results, function(x) x$JBsep$errorJy))
 
-dataSmall <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$JBjoint$small$errorSx), errorSy = sapply(results, function(x) x$JBjoint$small$errorSy), errorMx = sapply(results, function(x) x$JBjoint$small$errorMx), errorMy = sapply(results, function(x) x$JBjoint$small$errorMy), method = rep("Small rho", nrep), errorM = sapply(results, function(x) x$JBjoint$small$errorM), Mdist = sapply(results, function(x) x$JBjoint$small$Mdist))
+dataSepAve <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$JBsepAve$errorSx), errorSy = sapply(results, function(x) x$JBsepAve$errorSy), errorMx = sapply(results, function(x) x$JBsepAve$errorMx), errorMy = sapply(results, function(x) x$JBsepAve$errorMy), method = rep("SepAve", nrep), errorJx = sapply(results, function(x) x$JBsepAve$errorJx), errorJy = sapply(results, function(x) x$JBsepAve$errorJy))
 
-dataMed <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$JBjoint$medium$errorSx), errorSy = sapply(results, function(x) x$JBjoint$medium$errorSy), errorMx = sapply(results, function(x) x$JBjoint$medium$errorMx), errorMy = sapply(results, function(x) x$JBjoint$medium$errorMy), method = rep("Medium rho", nrep), errorM = sapply(results, function(x) x$JBjoint$medium$errorM), Mdist = sapply(results, function(x) x$JBjoint$medium$Mdist))
+#                      errorSxAve = sapply(results, function(x) x$JBsep$errorSxAve), errorSyAve = sapply(results, function(x) x$JBsep$errorSyAve), errorJxave = sapply(results, function(x) x$JBsep$errorJxave), errorJyave = sapply(results, function(x) x$JBsep$errorJyave))
 
-dataLarge <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$JBjoint$large$errorSx), errorSy = sapply(results, function(x) x$JBjoint$large$errorSy), errorMx = sapply(results, function(x) x$JBjoint$large$errorMx), errorMy = sapply(results, function(x) x$JBjoint$large$errorMy), method = rep("Large rho", nrep), errorM = sapply(results, function(x) x$JBjoint$large$errorM), Mdist = sapply(results, function(x) x$JBjoint$large$Mdist))
+dataSmall <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$JBjoint$small$errorSx), errorSy = sapply(results, function(x) x$JBjoint$small$errorSy), errorMx = sapply(results, function(x) x$JBjoint$small$errorMx), errorMy = sapply(results, function(x) x$JBjoint$small$errorMy), method = rep("Small rho", nrep), errorJx = sapply(results, function(x) x$JBjoint$small$errorJx), errorJy = sapply(results, function(x) x$JBjoint$small$errorJy))
+
+dataMed <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$JBjoint$medium$errorSx), errorSy = sapply(results, function(x) x$JBjoint$medium$errorSy), errorMx = sapply(results, function(x) x$JBjoint$medium$errorMx), errorMy = sapply(results, function(x) x$JBjoint$medium$errorMy), method = rep("Medium rho", nrep), errorJx = sapply(results, function(x) x$JBjoint$medium$errorJx), errorJy = sapply(results, function(x) x$JBjoint$medium$errorJy))
+
+dataLarge <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$JBjoint$large$errorSx), errorSy = sapply(results, function(x) x$JBjoint$large$errorSy), errorMx = sapply(results, function(x) x$JBjoint$large$errorMx), errorMy = sapply(results, function(x) x$JBjoint$large$errorMy), method = rep("Large rho", nrep), errorJx = sapply(results, function(x) x$JBjoint$large$errorJx), errorJy = sapply(results, function(x) x$JBjoint$large$errorJy))
 
 # Dataframe for joint ICA
-dataJointICA <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$jointICA$errorSx), errorSy = sapply(results, function(x) x$jointICA$errorSy), errorMx = sapply(results, function(x) x$jointICA$errorM), errorMy = sapply(results, function(x) x$jointICA$errorM), method = rep("Joint ICA", nrep), errorM = sapply(results, function(x) x$jointICA$errorM), Mdist = rep(0, length(snr1)))
+dataJointICA <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$jointICA$errorSx), errorSy = sapply(results, function(x) x$jointICA$errorSy), errorMx = sapply(results, function(x) x$jointICA$errorM), errorMy = sapply(results, function(x) x$jointICA$errorM), method = rep("Joint ICA", nrep), errorJx = sapply(results, function(x) x$jointICA$errorJx), errorJy = sapply(results, function(x) x$jointICA$errorJy))
 
-dataAll <- rbind(dataSep, dataSmall, dataMed, dataLarge, dataJointICA)
+# Dataframe for mCCA + joint ICA
+datamCCA <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$mCCA$errorSx), errorSy = sapply(results, function(x) x$mCCA$errorSy), errorMx = sapply(results, function(x) x$mCCA$errorMx), errorMy = sapply(results, function(x) x$mCCA$errorMy), method = rep("mCCA + joint ICA", nrep), errorJx = sapply(results, function(x) x$mCCA$errorJx), errorJy = sapply(results, function(x) x$mCCA$errorJy))
+
+dataAll <- rbind(dataSep, dataSepAve, dataSmall, dataMed, dataLarge, dataJointICA, datamCCA)
 
 dataAll$snr1 <- paste("SNRx = ", dataAll$snr1, sep="")
 dataAll$snr2 <- paste("SNRy = ", dataAll$snr2, sep="")
@@ -141,24 +149,76 @@ colnames(dataAll)[3] = "Sx"
 colnames(dataAll)[4] = "Sy"
 colnames(dataAll)[5] = "Mx"
 colnames(dataAll)[6] = "My"
+colnames(dataAll)[8] = "Jx"
+colnames(dataAll)[9] = "Jy"
 
-levels(dataAll$method) <- c(expression(rho~"="~0), expression(small~rho), expression(medium~rho), expression(large~rho), expression(joint~ICA))
+dataAll$method <- factor(dataAll$method, levels = c("Sep", "Small rho", "Medium rho", "Large rho", "SepAve", "Joint ICA", "mCCA + joint ICA"))
+
+levels(dataAll$method) <- c(expression(rho~"="~0), expression(small~rho), expression(medium~rho), expression(large~rho), expression(averaged), expression(joint~ICA), expression(mCCA~"+"~joint~ICA))
+
+
 
 # All methods together
 library(ggplot2)
+library(tidyverse)
 
 dataAllmelt = dataAll%>%
-  reshape2::melt(variable.name = "type")%>%
-  filter((type != "errorM")&(type != "Mdist"))
+  reshape2::melt(variable.name = "type")
 
-levels(dataAllmelt$type) <- c(expression("S"["Jx"]), expression("S"["Jy"]), expression("M"["Jx"]), expression("M"["Jy"]), expression(M), expression(distM))
+###################################################################################
+# Table of errors
+###################################################################################
+
+table_sum = dataAllmelt %>%
+  dplyr::group_by(snr1, snr2, method, type)%>%
+  summarize(errormean = round(mean(value), 2), errorse = round(sd(value)/10, 3), errorsd = round(sd(value), 2))
+
+# table_sum$error = paste(sprintf('%.3f', table_sum$errormean), "(", sprintf('%.3f', table_sum$errorse), ")", sep = "")
+table_sum$error = paste(sprintf('%.2f', table_sum$errormean), "(", sprintf('%.2f', table_sum$errorsd), ")", sep = "")
+
+output_table = table_sum %>%
+  select(snr1, snr2, method, type, error)%>%
+  pivot_wider(id_cols = c(snr1, snr2, method), names_from = type, values_from = error)
+
+
+levels(output_table$snr1) = c("Low SNR $\\bX$", "High SNR $\\bX$")
+levels(output_table$snr2) = c("Low SNR $\\bY$", "High SNR $\\bY$")
+
+levels(output_table$method) = c("$\\rho = 0$", "small $\\rho$", "medium $\\rho$", "large $\\rho$", "averaged from $\\rho = 0$", "joint ICA", "mCCA $+$ joint ICA")
+
+output_table$snr1 = as.character(output_table$snr1)
+output_table$snr2 = as.character(output_table$snr2)
+
+# Leave only the first line in each snr regime
+output_table[rep(2:7, 4) + rep(c(0:3)*(nrow(output_table)/4), each = 6), 1:2] = ""
+
+colnames(output_table) = c("", "", "Method", "$\\bS_x$", "$\\bS_y$", "$\\bM_x$", "$\\bM_y$", "$\\bJ_x$", "$\\bJ_y$")
+
+#Combine SNRS
+
+output_table[rep(2, 4) + c(0:3)*(nrow(output_table)/4), 1] = output_table[rep(1, 4) + c(0:3)*(nrow(output_table)/4), 2]
+
+library(xtable)
+xoutput = xtable(output_table[, -2])
+
+align(xoutput) <-"l|l|l|cc|cc|cc|"
+
+hlines = c(-1, 0, c(1:3)*(nrow(xoutput)/4), nrow(xoutput))
+
+print(xoutput, include.rownames = FALSE, hline.after = hlines, latex.environments = "center", sanitize.text.function = function(x) {x})
+
+###################################################################################
+# Plots of errors
+###################################################################################
+levels(dataAllmelt$type) <- c(expression("S"["Jx"]), expression("S"["Jy"]), expression("M"["Jx"]), expression("M"["Jy"]), expression("J"["x"]), expression("J"["y"]))
 
 p = dataAllmelt%>%
-  filter((type != "M")&(type != "distM"))%>%
-  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed) + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=24), axis.text.x = element_text(angle = 45, hjust = 1, size = 24))+scale_fill_brewer(palette="GnBu") + scale_x_discrete(labels = parse(text = levels(dataAllmelt$method)))
+  filter(method != "medium ~ rho")%>%
+  filter(method != "small ~ rho")%>%
+  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed, scales = "free_y") + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=24), axis.text.x = element_text(angle = 45, hjust = 1, size = 12))+scale_fill_brewer(palette="GnBu") + scale_x_discrete(labels = parse(text = levels(dataAllmelt$method)[-c(2:3)]))
 print(p)
 
-pdf(file = "Boxplots_WithJoint_ForPaper.pdf", width = 14, height = 12)
+pdf(file = "Boxplots_WithJoint_ForPaper_new.pdf", width = 14, height = 12)
 print(p)
 dev.off()
 
@@ -166,12 +226,15 @@ dev.off()
 # All methods without Joint ICA
 p2 = dataAllmelt%>%
   filter(method != "joint ~ ICA")%>%
-  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed) + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=24), axis.text.x = element_text(angle = 45, hjust = 1, size = 24))+scale_fill_brewer(palette="GnBu")+ scale_x_discrete(labels = parse(text = levels(dataAllmelt$method)))
+  filter(method != "mCCA ~ \"+\" ~ joint ~ ICA")%>%
+  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed, scales = "free_y") + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=24), axis.text.x = element_text(angle = 45, hjust = 1, size = 12))+scale_fill_brewer(palette="GnBu")+ scale_x_discrete(labels = parse(text = levels(dataAllmelt$method)[-c(6,7)]))
 print(p2)
 
-pdf(file = "Boxplots_WithoutJoint_ForPaper.pdf", width = 14, height = 12)
+pdf(file = "Boxplots_WithoutJoint_ForPaper_new.pdf", width = 14, height = 12)
 print(p2)
 dev.off()
+
+
 
 # Get numbers for R^2_{jx} and R^2_{jy}
 
@@ -181,3 +244,6 @@ summary(dataR2$R2x[dataR2$snr1 == 0.2]) #[0.09, 0.13]
 summary(dataR2$R2x[dataR2$snr1 == 5]) #[0.4, 0.65]
 summary(dataR2$R2y[dataR2$snr2 == 0.2]) #[0.15, 0.16] 
 summary(dataR2$R2y[dataR2$snr2 == 5]) #[0.72, 0.80]
+
+
+
