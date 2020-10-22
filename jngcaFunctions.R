@@ -1039,14 +1039,14 @@ SimFMRI123 = function(snr = 1, noisyICA=FALSE, nTR=50, nImages=1, phi=0.5, dim.d
 
 # function to create network matrices from vectorized lower diagonals:
 
-vec2net = function(invector) {
+vec2net = function(invector,make.diag=1) {
   #invector: choose(p,2) x 1, where p is the number of nodes
   nNode = (1 + sqrt(1+8*length(invector)))/2
   outNet = matrix(0,nNode,nNode)
   outNet[lower.tri(outNet)] = invector
   dim(outNet) = c(nNode,nNode)
   outNet = outNet + t(outNet)
-  diag(outNet) = 1
+  diag(outNet) = make.diag
   outNet
 }
 
@@ -1062,16 +1062,18 @@ whitener.evd = function(xData) {
   list(whitener=whitener,zData = xData%*%whitener)
 }
 
-
+# here subjects are by rows, columns correspond to components
 aveM = function(mjX,mjY) {
   
-  mjX = t(t(mjX) / sqrt(apply(mjX^2,2,sum)))
+  mjX = t(t(mjX) / sqrt(apply(mjX^2,2,sum))) # each column has eucledean norm 1
   mjY = t(t(mjY) / sqrt(apply(mjY^2,2,sum)))
-  n = nrow(mjX)
-  rj = ncol(mjX)
+  n = nrow(mjX) # number of subjects
+  rj = ncol(mjX) # number of components
   aveMj = matrix(0,n,rj)
   for (j in 1:rj) {
-    temp = (mjX[,j]+mjY[,j])/2
+    # Need to take sign into account
+    signXY = sign(sum(mjX[, j] * mjY[, j])) # sign
+    temp = (mjX[,j] + mjY[,j] * signXY)/2
     aveMj[,j] = temp/sqrt(sum(temp^2))
   }
   aveMj
@@ -1296,7 +1298,7 @@ computeRho <- function(JBvalX, JBvalY, Mxall, Myall, rjoint){
 
 
 #IGAY: adjust function so that the path is not hard-coded
-plotNetwork = function(component,title='',qmin=0.005, qmax=0.995, path = '~/Dropbox/JINGCA/Data/community_affiliation_mmpplus.csv') {
+plotNetwork = function(component,title='',qmin=0.005, qmax=0.995, path = '~/Dropbox/JINGCA/Data/community_affiliation_mmpplus.csv',make.diag=NA) {
   # component:
   # vectorized network of lenght choose(n,2)
   require(ggplot2)
@@ -1313,7 +1315,7 @@ plotNetwork = function(component,title='',qmin=0.005, qmax=0.995, path = '~/Drop
   
   labels = c('VI','SM','DS','VS','DM','CE','SC')
   coords = c(0,70.5,124.5,148.5,197.5,293.5,360.5)
-  netmat = vec2net(component)
+  netmat = vec2net(component,make.diag)
   
   zmin = quantile(netmat,qmin)
   zmax = quantile(netmat,qmax)
@@ -1648,12 +1650,14 @@ signchange = function(S,M=NULL) {
 # BRISK: generateData_v2 alters individual component in second dataset to be a little more sparse, 
 # which makes it more realistic. (The original scenario was a more pathological example where logis fail
 # but JB succeeds...)
+# IGAY: added centering to mj so already column-centered approximately
 generateData_v2 <- function(nsubject = 48, snr = c(0.2, 0.2), vars = c(0.01,0.01)){
   # Generate mixing matrices
   n1 = round(nsubject/2)
-  mj1 = c(rep(1,n1),rep(-1,nsubject-n1))+rnorm(nsubject)
-  mj2 = c(rep(-1,n1),rep(1,nsubject - n1))+rnorm(nsubject)
-  mj = cbind(mj1,mj2)
+  mj1 = c(rep( 1, n1), rep(-1, nsubject - n1)) + rnorm(nsubject)
+  mj2 = c(rep(-1, n1), rep( 1, nsubject - n1)) + rnorm(nsubject)
+  mj = cbind(mj1, mj2)
+  # mj = mj - matrix(colMeans(mj), nsubject, 2, byrow = T)
   
   # Create X components:
   # grab the 1, 2, 3 components used in the LCA paper; snr doesn't matter here as just grab the components in S
@@ -1670,6 +1674,7 @@ generateData_v2 <- function(nsubject = 48, snr = c(0.2, 0.2), vars = c(0.01,0.01
   siX = t(simS[,1])
   n4 = round(nsubject/4)
   miX = c(rep(-1,n4),rep(1,n4),rep(-1,n4),rep(1,nsubject-3*n4))+rnorm(nsubject)
+  # miX = miX - mean(miX)
   diX = miX%*%siX
   
   # Calculate Frobenius norm of the signal
@@ -1678,6 +1683,7 @@ generateData_v2 <- function(nsubject = 48, snr = c(0.2, 0.2), vars = c(0.01,0.01
   # Generate noise
   nX = t(scale(matrix(rnorm((nsubject-3)*px),px)))
   mnX = matrix(rnorm((nsubject-3)*nsubject),nsubject)
+  # mnX = mnX - matrix(colMeans(mnX), nsubject, nsubject - 3, byrow = T)
   dnX = mnX%*%nX
   
   # Adjust the noise with snr ratio
@@ -1727,6 +1733,7 @@ generateData_v2 <- function(nsubject = 48, snr = c(0.2, 0.2), vars = c(0.01,0.01
   siY = t(scale(siY))
   n8 = round(nsubject/8)
   miY = cbind(c(rep(1,n8),rep(-1,n8),rep(1,n8),rep(-1,n8),rep(1,n8),rep(-1,n8),rep(1,n8),rep(-1,nsubject-7*n8))+rnorm(nsubject),c(rep(1,n1),rep(-1,nsubject-n1))+rnorm(nsubject))
+  # miY = miY - matrix(colMeans(miY), nsubject, 2, byrow = T)
   diY = miY%*%siY
   
   # Calculate Frobenius norm of the signal
@@ -1735,6 +1742,7 @@ generateData_v2 <- function(nsubject = 48, snr = c(0.2, 0.2), vars = c(0.01,0.01
   # Generate noise for Y
   nY = t(scale(matrix(rnorm((nsubject-4)*py),py)))
   mnY = matrix(rnorm((nsubject-4)*nsubject),nsubject)
+  # mnY = mnY - matrix(colMeans(mnY), nsubject, nsubject - 4, byrow = T)
   dnY = mnY%*%nY
   
   # Adjust the noise with snr ratio
@@ -1751,7 +1759,7 @@ generateData_v2 <- function(nsubject = 48, snr = c(0.2, 0.2), vars = c(0.01,0.01
 }
 
 
-## TO DO 30 March 2020: Discuss with Irina. Need to clean this up
+
 
 # Wrapper functions for rank estimation using permutatation approach
 #######################################################################
@@ -1843,9 +1851,6 @@ permmatRank_joint = function(matchedResults, nperms = 100){
   
   return(list(pvalues = pperm, corrperm = corrperm, corrmatched = corrmatched))
 }
-
-
-
 
 
 
