@@ -24,23 +24,8 @@ trueJyF2 <- sum(trueJy^2)
 #############################################################
 out_jointICA <- jointICA(dXcentered, dYcentered, r0 = 2)
 
-# What are the errors?
-errorSx = frobICA(S1 = t(rbind(sj1x, sj2x)), S2 = out_jointICA$S[1:pX, ], standardize  = T)
-errorSx # 1.41
-errorSy = frobICA(S1 = t(rbind(sj1y, sj2y)), S2 = out_jointICA$S[(pX+1):(pX+pY), ], standardize  = T)
-errorSy # 1.41
-errorM = frobICA(M1 = out_jointICA$Mjoint, M2 = t(mj), standardize = T) * sqrt(nrow(mj))
-errorM # 1.36
-
-# Joint signal Frobenius norm reconstruction error [DISCUSS with BEN]
-errorJx = sum((tcrossprod(t(out_jointICA$Mjoint), out_jointICA$S[1:pX, ]) * sqrt(mean(dXcentered^2)) - trueJx)^2)/trueJxF2
-errorJx #89.3
-errorJy = sum((tcrossprod(t(out_jointICA$Mjoint), out_jointICA$S[(pX + 1):(pX + pY), ])* sqrt(mean(dYcentered^2)) - trueJy)^2)/trueJyF2 # 61.1
-
-
 # Prepare the output list for joint ICA
-output_jointICA <- list(errorSx = errorSx, errorSy = errorSy, errorM = errorM, errorJx = errorJx, errorJy = errorJy)
-save(output_jointICA, file = "jointICA_LargeScaleindiv10.Rda")
+save(out_jointICA, file = "jointICA_LargeScaleindiv10.Rda")
 
 # Joint rank estimation based on oversaturated models
 #####################################################
@@ -176,25 +161,4 @@ save(out_indiv_large, file = "out_indiv_large.Rda")
 ###############################################################################
 out_mcca <- mCCA_jointICA(dXcentered, dYcentered, Mx = 12, My = 12, M = 2)
 
-# What are the errors?
-errorSx = frobICA(S1 = t(rbind(sj1x, sj2x)), S2 = out_mcca$S[1:pX, ], standardize  = T)
-errorSx #1.41
-errorSy = frobICA(S1 = t(rbind(sj1y, sj2y)), S2 = out_mcca$S[(pX+1):(pX+pY), ], standardize  = T)
-errorSy #1.41
-errorMx = frobICA(M1 = out_mcca$Mx, M2 = t(mj), standardize  = T) * sqrt(nrow(mj))
-errorMx #1.37
-errorMy = frobICA(M1 = out_mcca$My, M2 = t(mj), standardize  = T) * sqrt(nrow(mj))
-errorMy #1.32
-
-Mdist = frobICA(M1 = out_mcca$Mx, M2 = out_mcca$My, standardize  = T) * sqrt(nrow(mj)) 
-Mdist #0.75; correlations 0.75 and 0.7
-
-# Joint signal Frobenius norm reconstruction error
-errorJx = sum((tcrossprod(t(out_mcca$Mx), out_mcca$S[1:pX, ]) - trueJx)^2)/trueJxF2
-# 92.2
-errorJy = sum((tcrossprod(t(out_mcca$My), out_mcca$S[(pX+1):(pX+pY), ]) - trueJy)^2)/trueJyF2
-# 62.3 - awful
-
-output_mCCA <- list(errorSx = errorSx, errorSy = errorSy, errorMx = errorMx, errorMy = errorMy, Mdist = Mdist, errorJx = errorJx, errorJy = errorJy)
-
-save(output_mCCA, file = "mCCA_LargeScale.Rda")
+save(out_mcca, file = "mCCA_LargeScale.Rda")
