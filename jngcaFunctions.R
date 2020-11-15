@@ -1315,10 +1315,13 @@ plotNetwork = function(component,title='',qmin=0.005, qmax=0.995, path = '~/Drop
   
   labels = c('VI','SM','DS','VS','DM','CE','SC')
   coords = c(0,70.5,124.5,148.5,197.5,293.5,360.5)
+
+  
+  zmin = quantile(component,qmin)
+  zmax = quantile(component,qmax)
+  
   netmat = vec2net(component,make.diag)
   
-  zmin = quantile(netmat,qmin)
-  zmax = quantile(netmat,qmax)
   meltsub = create.graph.long(netmat,mmp_order)
   #g2 = ggplot(meltsub, aes(X1,X2,fill=value))+ geom_tile()+ scale_fill_gradient2(low = "blue",  high = "red",limits=c(zmin,zmax),oob=squish)+labs(title = paste0("Component ",component), x = "Node 1", y = "Node 2")+coord_cartesian(clip='off',xlim=c(-0,390))
   
@@ -1332,7 +1335,7 @@ plotNetwork = function(component,title='',qmin=0.005, qmax=0.995, path = '~/Drop
     }
   }
   # which nodes are prominent:
-  loadingsummary = apply(abs(netmat),1,sum)
+  loadingsummary = apply(abs(netmat),1,sum,na.rm=TRUE)
   loadingsum2 = loadingsummary[mmp_order]
   
   Community = factor(mmp_modules$Community_Label)[mmp_order]
