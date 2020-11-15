@@ -295,4 +295,4 @@ results <- foreach(i=1:nrep, .errorhandling='pass') %dorng% {
 # stop cluster
 stopCluster(cl)
 
-save(results, file = "SimResults_estimation_small.Rdata")
+save(results, file = "SimResults_estimation_small_rho20.Rdata")
