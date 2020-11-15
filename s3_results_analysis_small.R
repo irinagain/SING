@@ -112,15 +112,13 @@ dev.off()
 ######################################################
 # Estimation results
 ######################################################
-load("SimResults_estimation_small.Rdata")
+load("SimResults_estimation_small_rho20.Rdata")
 
 # Create dataframe with all results
 
 dataSep <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$JBsep$errorSx), errorSy = sapply(results, function(x) x$JBsep$errorSy), errorMx = sapply(results, function(x) x$JBsep$errorMx), errorMy = sapply(results, function(x) x$JBsep$errorMy), method = rep("Sep", nrep), errorJx = sapply(results, function(x) x$JBsep$errorJx), errorJy = sapply(results, function(x) x$JBsep$errorJy))
 
 dataSepAve <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$JBsepAve$errorSx), errorSy = sapply(results, function(x) x$JBsepAve$errorSy), errorMx = sapply(results, function(x) x$JBsepAve$errorMx), errorMy = sapply(results, function(x) x$JBsepAve$errorMy), method = rep("SepAve", nrep), errorJx = sapply(results, function(x) x$JBsepAve$errorJx), errorJy = sapply(results, function(x) x$JBsepAve$errorJy))
-
-#                      errorSxAve = sapply(results, function(x) x$JBsep$errorSxAve), errorSyAve = sapply(results, function(x) x$JBsep$errorSyAve), errorJxave = sapply(results, function(x) x$JBsep$errorJxave), errorJyave = sapply(results, function(x) x$JBsep$errorJyave))
 
 dataSmall <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$JBjoint$small$errorSx), errorSy = sapply(results, function(x) x$JBjoint$small$errorSy), errorMx = sapply(results, function(x) x$JBjoint$small$errorMx), errorMy = sapply(results, function(x) x$JBjoint$small$errorMy), method = rep("Small rho", nrep), errorJx = sapply(results, function(x) x$JBjoint$small$errorJx), errorJy = sapply(results, function(x) x$JBjoint$small$errorJy))
 
@@ -132,9 +130,13 @@ dataLarge <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, func
 dataJointICA <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$jointICA$errorSx), errorSy = sapply(results, function(x) x$jointICA$errorSy), errorMx = sapply(results, function(x) x$jointICA$errorM), errorMy = sapply(results, function(x) x$jointICA$errorM), method = rep("Joint ICA", nrep), errorJx = sapply(results, function(x) x$jointICA$errorJx), errorJy = sapply(results, function(x) x$jointICA$errorJy))
 
 # Dataframe for mCCA + joint ICA
-datamCCA <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$mCCA$errorSx), errorSy = sapply(results, function(x) x$mCCA$errorSy), errorMx = sapply(results, function(x) x$mCCA$errorMx), errorMy = sapply(results, function(x) x$mCCA$errorMy), method = rep("mCCA + joint ICA", nrep), errorJx = sapply(results, function(x) x$mCCA$errorJx), errorJy = sapply(results, function(x) x$mCCA$errorJy))
+datamCCA <- data.frame(snr1 = snr1, snr2 = snr2, errorSx = sapply(results, function(x) x$mCCA$errorSx), errorSy = sapply(results, function(x) x$mCCA$errorSy), errorMx = sapply(results, function(x) x$mCCA$errorMx), errorMy = sapply(results, function(x) x$mCCA$errorMy), method = rep("mCCA+jICA", nrep), errorJx = sapply(results, function(x) x$mCCA$errorJx), errorJy = sapply(results, function(x) x$mCCA$errorJy))
 
 dataAll <- rbind(dataSep, dataSepAve, dataSmall, dataMed, dataLarge, dataJointICA, datamCCA)
+
+# Do square root error for Jx and Jy for consistency
+dataAll$errorJx = sqrt(dataAll$errorJx)
+dataAll$errorJy = sqrt(dataAll$errorJy)
 
 dataAll$snr1 <- paste("SNRx = ", dataAll$snr1, sep="")
 dataAll$snr2 <- paste("SNRy = ", dataAll$snr2, sep="")
@@ -152,9 +154,9 @@ colnames(dataAll)[6] = "My"
 colnames(dataAll)[8] = "Jx"
 colnames(dataAll)[9] = "Jy"
 
-dataAll$method <- factor(dataAll$method, levels = c("Sep", "Small rho", "Medium rho", "Large rho", "SepAve", "Joint ICA", "mCCA + joint ICA"))
+dataAll$method <- factor(dataAll$method, levels = c("Sep", "Small rho", "Medium rho", "Large rho", "SepAve", "Joint ICA", "mCCA+jICA"))
 
-levels(dataAll$method) <- c(expression(rho~"="~0), expression(small~rho), expression(medium~rho), expression(large~rho), expression(averaged), expression(joint~ICA), expression(mCCA~"+"~joint~ICA))
+levels(dataAll$method) <- c(expression(rho~"="~0), expression(Small~rho), expression(Medium~rho), expression(Large~rho), expression(SING-averaged), expression(Joint~ICA), expression(mCCA~"+"~jICA))
 
 
 
@@ -165,8 +167,75 @@ library(tidyverse)
 dataAllmelt = dataAll%>%
   reshape2::melt(variable.name = "type")
 
+
+
 ###################################################################################
-# Table of errors
+# Plots of errors
+###################################################################################
+# no hats
+#levels(dataAllmelt$type) <- c(expression("S"["Jx"]), expression("S"["Jy"]), expression("M"["Jx"]), expression("M"["Jy"]), expression("J"["x"]), expression("J"["y"]))
+
+# do hats
+levels(dataAllmelt$type) <- c(expression(hat(S)["Jx"]), expression(hat(S)["Jy"]), expression(hat(M)["Jx"]), expression(hat(M)["Jy"]), expression(hat(J)["x"]), expression(hat(J)["y"]))
+
+# All methods without rho = 0, and without medium/small rho
+p = dataAllmelt%>%
+  filter(method != "rho ~ \"=\" ~ 0")%>%
+  filter(method != "Medium ~ rho")%>%
+  filter(method != "Small ~ rho")%>%
+  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed) + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=28), axis.text.x = element_text(angle = 45, hjust = 1, size = 30))+scale_fill_brewer(palette="GnBu") 
+p = p + scale_x_discrete(labels = parse(text = levels(dataAllmelt$method)[-c(1:3)]))
+print(p)
+
+pdf(file = "Boxplots_WithJoint_ForPaper_new.pdf", width = 14, height = 12)
+print(p)
+dev.off()
+
+# All methods without Joint ICA
+p2 = dataAllmelt%>%
+  filter(method != "Joint ~ ICA")%>%
+  filter(method != "mCCA ~ \"+\" ~ jICA")%>%
+  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed) + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=24), axis.text.x = element_text(angle = 45, hjust = 1, size = 24))+scale_fill_brewer(palette="GnBu")
+p2 = p2 + scale_x_discrete(labels = parse(text = levels(dataAllmelt$method)[-c(6,7)]))
+print(p2)
+
+pdf(file = "Boxplots_WithoutJoint_ForPaper_new.pdf", width = 14, height = 16)
+print(p2)
+dev.off()
+
+
+# Zoomed in on just Ms
+
+
+# All methods without Joint ICA
+p3 = dataAllmelt%>%
+  filter(method != "Joint ~ ICA")%>%
+  filter(method != "mCCA ~ \"+\" ~ jICA")%>%
+  filter(type != "hat(S)[\"Jx\"]")%>%
+  filter(type != "hat(S)[\"Jy\"]")%>%
+  filter(type != "hat(J)[\"x\"]")%>%
+  filter(type != "hat(J)[\"y\"]")%>%
+  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed) + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=28), axis.text.x = element_text(angle = 45, hjust = 1, size = 30))+scale_fill_brewer(palette="GnBu")
+p3 = p3 + scale_x_discrete(labels = parse(text = levels(dataAllmelt$method)[-c(6,7)]))
+print(p3)
+
+pdf(file = "Boxplots_ZoomedInMs.pdf", width = 14, height = 12)
+print(p3)
+dev.off()
+
+
+
+# Get numbers for R^2_{jx} and R^2_{jy}
+
+dataR2 <- data.frame(snr1 = snr1, snr2 = snr2, R2x = sapply(results, function(x) x$R2x), R2y = sapply(results, function(x) x$R2y))
+
+summary(dataR2$R2x[dataR2$snr1 == 0.2]) #[0.09, 0.13]
+summary(dataR2$R2x[dataR2$snr1 == 5]) #[0.4, 0.65]
+summary(dataR2$R2y[dataR2$snr2 == 0.2]) #[0.15, 0.16] 
+summary(dataR2$R2y[dataR2$snr2 == 5]) #[0.72, 0.80]
+
+###################################################################################
+# Alternative - Table of errors
 ###################################################################################
 
 table_sum = dataAllmelt %>%
@@ -184,7 +253,7 @@ output_table = table_sum %>%
 levels(output_table$snr1) = c("Low SNR $\\bX$", "High SNR $\\bX$")
 levels(output_table$snr2) = c("Low SNR $\\bY$", "High SNR $\\bY$")
 
-levels(output_table$method) = c("$\\rho = 0$", "small $\\rho$", "medium $\\rho$", "large $\\rho$", "averaged from $\\rho = 0$", "joint ICA", "mCCA $+$ joint ICA")
+levels(output_table$method) = c("$\\rho = 0$", "small $\\rho$", "medium $\\rho$", "large $\\rho$", "SING-averaged$", "Joint ICA", "mCCA $+$ jICA")
 
 output_table$snr1 = as.character(output_table$snr1)
 output_table$snr2 = as.character(output_table$snr2)
@@ -206,44 +275,4 @@ align(xoutput) <-"l|l|l|cc|cc|cc|"
 hlines = c(-1, 0, c(1:3)*(nrow(xoutput)/4), nrow(xoutput))
 
 print(xoutput, include.rownames = FALSE, hline.after = hlines, latex.environments = "center", sanitize.text.function = function(x) {x})
-
-###################################################################################
-# Plots of errors
-###################################################################################
-levels(dataAllmelt$type) <- c(expression("S"["Jx"]), expression("S"["Jy"]), expression("M"["Jx"]), expression("M"["Jy"]), expression("J"["x"]), expression("J"["y"]))
-
-p = dataAllmelt%>%
-  filter(method != "medium ~ rho")%>%
-  filter(method != "small ~ rho")%>%
-  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed, scales = "free_y") + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=24), axis.text.x = element_text(angle = 45, hjust = 1, size = 12))+scale_fill_brewer(palette="GnBu") + scale_x_discrete(labels = parse(text = levels(dataAllmelt$method)[-c(2:3)]))
-print(p)
-
-pdf(file = "Boxplots_WithJoint_ForPaper_new.pdf", width = 14, height = 12)
-print(p)
-dev.off()
-
-
-# All methods without Joint ICA
-p2 = dataAllmelt%>%
-  filter(method != "joint ~ ICA")%>%
-  filter(method != "mCCA ~ \"+\" ~ joint ~ ICA")%>%
-  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed, scales = "free_y") + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=24), axis.text.x = element_text(angle = 45, hjust = 1, size = 12))+scale_fill_brewer(palette="GnBu")+ scale_x_discrete(labels = parse(text = levels(dataAllmelt$method)[-c(6,7)]))
-print(p2)
-
-pdf(file = "Boxplots_WithoutJoint_ForPaper_new.pdf", width = 14, height = 12)
-print(p2)
-dev.off()
-
-
-
-# Get numbers for R^2_{jx} and R^2_{jy}
-
-dataR2 <- data.frame(snr1 = snr1, snr2 = snr2, R2x = sapply(results, function(x) x$R2x), R2y = sapply(results, function(x) x$R2y))
-
-summary(dataR2$R2x[dataR2$snr1 == 0.2]) #[0.09, 0.13]
-summary(dataR2$R2x[dataR2$snr1 == 5]) #[0.4, 0.65]
-summary(dataR2$R2y[dataR2$snr2 == 0.2]) #[0.15, 0.16] 
-summary(dataR2$R2y[dataR2$snr2 == 5]) #[0.72, 0.80]
-
-
 
