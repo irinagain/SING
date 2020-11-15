@@ -41,9 +41,10 @@ registerDoParallel(cl)
 
 set.seed(234623)
 
-results <- foreach(i=1:nrep, .errorhandling='pass', .noexport = "updateUboth_c", .packages = "Rcpp") %dorng% {
-  
-  sourceCpp("CfunctionsCurvilinear.cpp")
+#results <- foreach(i=1:nrep, .errorhandling='pass', .noexport = "updateUboth_c", .packages = "Rcpp") %dorng% {
+
+results <- foreach(i=1:nrep, .errorhandling='pass') %dorng% {
+  #sourceCpp("CfunctionsCurvilinear.cpp")
   
   # Generate the data with the specified signal and noise ratio
   data <- generateData_v2(nsubject = 48, snr = c(snr1[i], snr2[i]), vars = c(var_level, var_level))
@@ -153,8 +154,8 @@ results <- foreach(i=1:nrep, .errorhandling='pass', .noexport = "updateUboth_c",
   ##################################################################################################
   rho = JBall/10
   
-  #out1 = updateUboth(Ux = t(Uxall), Uy = t(Uyall), xData = xDataA, yData = yDataA, invLx = invLx, invLy = invLy, rho = rho, tau = 0.01, alpha = 0.8, maxiter = 1000, tol = 1e-10, r0 = 2)
-  out1 = updateUboth_c(Ux = matchMxMy$Ux, Uy = matchMxMy$Uy, xData = xDataA, yData = yDataA, invLx = invLx, invLy = invLy, rho = rho, tau = 0.01, alpha = 0.8, maxiter = 1000, tol = 1e-10, r0 = 2)
+  out1 = updateUboth(Ux = matchMxMy$Ux, Uy = matchMxMy$Uy, xData = xDataA, yData = yDataA, invLx = invLx, invLy = invLy, rho = rho, tau = 0.01, alpha = 0.8, maxiter = 1000, tol = 1e-10, r0 = 2)
+  #out1 = updateUboth_c(Ux = matchMxMy$Ux, Uy = matchMxMy$Uy, xData = xDataA, yData = yDataA, invLx = invLx, invLy = invLy, rho = rho, tau = 0.01, alpha = 0.8, maxiter = 1000, tol = 1e-10, r0 = 2)
   
   # Calculate mixing matrices and components
   Mxjoint = tcrossprod(invLx, out1$Ux[1:2, ])
@@ -188,8 +189,8 @@ results <- foreach(i=1:nrep, .errorhandling='pass', .noexport = "updateUboth_c",
   ##################################################################################################
   rho = JBall
 
-  #out2 = updateUboth(Ux = out1$Ux, Uy = out1$Uy, xData = xDataA, yData = yDataA, invLx = invLx, invLy = invLy, rho = rho, tau = 0.01, alpha = 0.8, maxiter = 1000, tol = 1e-10, r0 = 2)
-  out2 = updateUboth_c(Ux = out1$Ux, Uy = out1$Uy, xData = xDataA, yData = yDataA, invLx = invLx, invLy = invLy, rho = rho, tau = 0.01, alpha = 0.8, maxiter = 1000, tol = 1e-10, r0 = 2)
+  out2 = updateUboth(Ux = out1$Ux, Uy = out1$Uy, xData = xDataA, yData = yDataA, invLx = invLx, invLy = invLy, rho = rho, tau = 0.01, alpha = 0.8, maxiter = 1000, tol = 1e-10, r0 = 2)
+  #out2 = updateUboth_c(Ux = out1$Ux, Uy = out1$Uy, xData = xDataA, yData = yDataA, invLx = invLx, invLy = invLy, rho = rho, tau = 0.01, alpha = 0.8, maxiter = 1000, tol = 1e-10, r0 = 2)
   
   # Calculate mixing matrices and components
   Mxjoint = tcrossprod(invLx, out2$Ux[1:2, ])
@@ -220,10 +221,10 @@ results <- foreach(i=1:nrep, .errorhandling='pass', .noexport = "updateUboth_c",
 
   # Large rho (JB X 2)
   ##################################################################################################
-  rho = JBall*10
+  rho = JBall*20 
 
-  #out3 = updateUboth(Ux = out2$Ux, Uy = out2$Uy, xData = xDataA, yData = yDataA, invLx = invLx, invLy = invLy, rho = rho, tau = 0.01, alpha = 0.8, maxiter = 1000, tol = 1e-6, r0 = 2)
-  out3 = updateUboth_c(Ux = out2$Ux, Uy = out2$Uy, xData = xDataA, yData = yDataA, invLx = invLx, invLy = invLy, rho = rho, tau = 0.01, alpha = 0.8, maxiter = 1000, tol = 1e-6, r0 = 2)
+  out3 = updateUboth(Ux = out2$Ux, Uy = out2$Uy, xData = xDataA, yData = yDataA, invLx = invLx, invLy = invLy, rho = rho, tau = 0.01, alpha = 0.8, maxiter = 1000, tol = 1e-6, r0 = 2)
+  #out3 = updateUboth_c(Ux = out2$Ux, Uy = out2$Uy, xData = xDataA, yData = yDataA, invLx = invLx, invLy = invLy, rho = rho, tau = 0.01, alpha = 0.8, maxiter = 1000, tol = 1e-6, r0 = 2)
   
   # Calculate mixing matrices and components
   Mxjoint = tcrossprod(invLx, out3$Ux[1:2, ])
