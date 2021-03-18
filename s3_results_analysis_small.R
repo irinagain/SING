@@ -183,11 +183,11 @@ p = dataAllmelt%>%
   filter(method != "rho ~ \"=\" ~ 0")%>%
   filter(method != "Medium ~ rho")%>%
   filter(method != "Small ~ rho")%>%
-  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed) + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=28), axis.text.x = element_text(angle = 45, hjust = 1, size = 30))+scale_fill_brewer(palette="GnBu") 
+  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed) + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1, size = 25))+scale_fill_brewer(palette="GnBu") 
 p = p + scale_x_discrete(labels = parse(text = levels(dataAllmelt$method)[-c(1:3)]))
 print(p)
 
-pdf(file = "Boxplots_WithJoint_ForPaper_new.pdf", width = 14, height = 12)
+pdf(file = "Boxplots_WithJoint_ForPaper_new.pdf", width = 14, height = 10)
 print(p)
 dev.off()
 
@@ -195,7 +195,7 @@ dev.off()
 p2 = dataAllmelt%>%
   filter(method != "Joint ~ ICA")%>%
   filter(method != "mCCA ~ \"+\" ~ jICA")%>%
-  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed) + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=24), axis.text.x = element_text(angle = 45, hjust = 1, size = 24))+scale_fill_brewer(palette="GnBu")
+  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed) + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1, size = 25))+scale_fill_brewer(palette="GnBu")
 p2 = p2 + scale_x_discrete(labels = parse(text = levels(dataAllmelt$method)[-c(6,7)]))
 print(p2)
 
@@ -215,11 +215,11 @@ p3 = dataAllmelt%>%
   filter(type != "hat(S)[\"Jy\"]")%>%
   filter(type != "hat(J)[\"x\"]")%>%
   filter(type != "hat(J)[\"y\"]")%>%
-  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed) + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=28), axis.text.x = element_text(angle = 45, hjust = 1, size = 30))+scale_fill_brewer(palette="GnBu")
+  ggplot(aes(x = method, y = value, fill = method)) +geom_boxplot() +facet_grid(type ~ snr1 + snr2, labeller = label_parsed) + xlab("") + ylab("Error") + theme(legend.position="none", text = element_text(size=30), axis.text.x = element_text(angle = 45, hjust = 1, size = 25))+scale_fill_brewer(palette="GnBu")
 p3 = p3 + scale_x_discrete(labels = parse(text = levels(dataAllmelt$method)[-c(6,7)]))
 print(p3)
 
-pdf(file = "Boxplots_ZoomedInMs.pdf", width = 14, height = 12)
+pdf(file = "Boxplots_ZoomedInMs.pdf", width = 14, height = 7)
 print(p3)
 dev.off()
 
